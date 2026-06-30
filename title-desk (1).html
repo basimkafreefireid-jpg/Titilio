@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Title Desk — YouTube Shorts toolkit</title>
+<style>
+  :root{
+    --cork:#c49a6c;
+    --cork-dark:#a87d50;
+    --paper:#fbf7ee;
+    --paper-shadow:rgba(40,25,10,0.28);
+    --ink:#1f2a44;
+    --ink-soft:#4a5470;
+    --red:#d7263d;
+    --red-dark:#a31b2c;
+    --yellow:#ffd23f;
+    --pin:#5a5a5a;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  .desk{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(70,45,20,0.10) 0 3px, transparent 4px),
+      radial-gradient(circle at 38% 62%, rgba(70,45,20,0.10) 0 3px, transparent 4px),
+      radial-gradient(circle at 66% 30%, rgba(70,45,20,0.10) 0 3px, transparent 4px),
+      radial-gradient(circle at 82% 75%, rgba(70,45,20,0.10) 0 3px, transparent 4px),
+      radial-gradient(circle at 25% 85%, rgba(70,45,20,0.10) 0 3px, transparent 4px),
+      radial-gradient(circle at 55% 12%, rgba(70,45,20,0.10) 0 3px, transparent 4px),
+      radial-gradient(circle at 90% 45%, rgba(70,45,20,0.10) 0 3px, transparent 4px),
+      linear-gradient(var(--cork), var(--cork-dark));
+    border-radius:14px;
+    padding:28px 24px 32px;
+    color:var(--ink);
+  }
+
+  .masthead{text-align:center;margin-bottom:20px;}
+  .masthead h1{
+    font-family:Georgia,'Times New Roman',serif;
+    font-weight:700;font-style:italic;font-size:32px;margin:0;
+    color:var(--paper);text-shadow:2px 2px 0 rgba(0,0,0,0.18);letter-spacing:0.5px;
+  }
+  .masthead p{
+    margin:4px 0 0;font-size:11.5px;letter-spacing:2.5px;text-transform:uppercase;
+    color:rgba(255,255,255,0.78);font-weight:600;
+  }
+  .masthead .rule{height:2px;background:rgba(255,255,255,0.4);width:140px;margin:10px auto 0;}
+
+  /* tabs */
+  .tabbar{
+    display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:16px;
+  }
+  .tab{
+    font-family:Georgia,serif;font-style:italic;font-weight:700;font-size:13px;
+    background:rgba(251,247,238,0.85);
+    color:var(--ink-soft);
+    border:none;
+    padding:9px 14px 7px;
+    border-radius:8px 8px 0 0;
+    cursor:pointer;
+    box-shadow:0 -1px 0 rgba(0,0,0,0.05) inset;
+  }
+  .tab.active{
+    background:var(--paper);color:var(--red-dark);
+    box-shadow:0 4px 10px var(--paper-shadow);
+  }
+
+  .control-card{
+    background:var(--paper);
+    border-radius:3px 12px 12px 12px;
+    box-shadow:0 8px 18px var(--paper-shadow), 0 1px 0 rgba(255,255,255,0.4) inset;
+    padding:18px 20px 20px;
+    position:relative;
+    margin:0 auto 26px;
+    max-width:600px;
+  }
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .field-row{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+  .field-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-soft);}
+  .field-hint{font-size:12px;color:var(--ink-soft);margin:-2px 0 0;}
+  .topic-input{
+    width:100%;font-family:Georgia,'Times New Roman',serif;font-size:19px;
+    padding:8px 4px;border:none;border-bottom:2px dashed rgba(31,42,68,0.3);
+    background:transparent;color:var(--ink);
+  }
+  .topic-input:focus{outline:none;border-bottom-color:var(--red);}
+  .topic-input::placeholder{color:rgba(31,42,68,0.35);font-style:italic;}
+  textarea.topic-input{
+    font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;
+    border:1.5px solid rgba(31,42,68,0.2);border-radius:6px;padding:10px;
+    min-height:110px;resize:vertical;line-height:1.5;
+  }
+  textarea.topic-input:focus{border-color:var(--red);}
+
+  .link-row{display:flex;gap:8px;align-items:center;}
+  .link-input{
+    font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;
+    border:1.5px solid rgba(31,42,68,0.2);border-radius:6px;padding:8px 10px;flex:1;
+  }
+  .link-input:focus{border-color:var(--red);}
+  .fetch-btn{
+    font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-weight:700;font-size:12.5px;
+    white-space:nowrap;padding:9px 12px;border-radius:6px;border:1.5px solid var(--ink);
+    background:var(--ink);color:var(--paper);cursor:pointer;
+  }
+  .fetch-btn:hover{background:var(--red);border-color:var(--red);}
+  .fetch-btn:disabled{opacity:0.55;cursor:default;}
+  .link-status{font-size:12px;color:var(--ink-soft);font-style:italic;margin:2px 0 0;}
+  .divider-or{
+    text-align:center;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+    color:rgba(31,42,68,0.35);margin:2px 0;
+  }
+
+  .generate-btn{
+    display:block;margin:6px auto 0;
+    font-family:Georgia,'Times New Roman',serif;font-weight:700;font-style:italic;font-size:16px;
+    letter-spacing:1px;padding:10px 28px;border-radius:3px;border:2.5px solid var(--red);
+    color:var(--red);background:transparent;cursor:pointer;transform:rotate(-1.5deg);
+    transition:transform .12s ease, background .12s ease, color .12s ease;
+  }
+  .generate-btn:hover{transform:rotate(-1.5deg) scale(1.03);}
+  .generate-btn:active{background:var(--red);color:var(--paper);transform:rotate(-1.5deg) scale(0.97);}
+  .generate-btn:disabled{opacity:0.55;cursor:default;}
+  .generate-btn:disabled:hover{transform:rotate(-1.5deg) scale(1);}
+  .hint{text-align:center;font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .error-msg{
+    text-align:center;font-size:12.5px;color:var(--red-dark);margin-top:10px;font-weight:600;
+  }
+
+  .board{
+    display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    gap:20px 16px;padding:6px 4px;
+  }
+  .note{
+    background:var(--paper);padding:15px 15px 13px;border-radius:2px;
+    box-shadow:0 6px 14px var(--paper-shadow);position:relative;
+    clip-path:polygon(0% 1%,3% 0%,9% 1.5%,15% 0%,22% 1%,29% 0%,36% 1.5%,44% 0%,52% 1%,60% 0%,68% 1.5%,76% 0%,84% 1%,92% 0%,97% 1.5%,100% 0%,100% 98%,96% 100%,90% 98.5%,83% 100%,76% 98%,68% 100%,60% 98.5%,52% 100%,44% 98%,36% 100%,28% 98.5%,20% 100%,12% 98%,5% 100%,0% 98.5%);
+    animation:pinIn .25s ease both;
+  }
+  @keyframes pinIn{from{opacity:0;transform:translateY(8px) rotate(var(--rot,0deg));}to{opacity:1;transform:translateY(0) rotate(var(--rot,0deg));}}
+  .note::before{
+    content:"";position:absolute;top:-8px;left:18px;width:14px;height:14px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #fff, var(--red) 70%);box-shadow:0 2px 3px rgba(0,0,0,0.35);
+  }
+  .note-tag{
+    display:inline-block;font-family:'Courier New',monospace;font-size:10px;font-weight:700;
+    letter-spacing:1px;text-transform:uppercase;color:var(--red-dark);
+    background:rgba(215,38,61,0.08);border:1px solid rgba(215,38,61,0.25);border-radius:3px;
+    padding:2px 6px;margin-bottom:8px;
+  }
+  .note-title{font-family:Georgia,'Times New Roman',serif;font-size:15.5px;line-height:1.35;margin:0 0 12px;color:var(--ink);}
+  .note-actions{display:flex;justify-content:flex-end;}
+  .copy-btn{
+    display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;letter-spacing:0.5px;
+    text-transform:uppercase;background:none;border:none;cursor:pointer;color:var(--ink-soft);
+    padding:4px 6px;border-radius:4px;
+  }
+  .copy-btn:hover{color:var(--ink);background:rgba(31,42,68,0.06);}
+  .copy-btn svg{width:13px;height:13px;}
+  .copy-btn.copied{color:var(--red-dark);}
+
+  .empty-board{text-align:center;color:rgba(255,255,255,0.88);font-style:italic;font-family:Georgia,serif;font-size:14.5px;padding:26px 10px;}
+  .loading-board{text-align:center;color:rgba(255,255,255,0.95);font-style:italic;font-family:Georgia,serif;font-size:14.5px;padding:26px 10px;}
+
+  /* hashtag pills */
+  .tag-board{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:6px 4px;}
+  .tag-pill{
+    font-family:'Courier New',monospace;font-weight:700;font-size:13px;color:var(--ink);
+    background:var(--paper);border:1.5px solid rgba(31,42,68,0.2);border-radius:14px;
+    padding:6px 12px;cursor:pointer;box-shadow:0 3px 6px var(--paper-shadow);
+    transition:transform .1s ease;
+  }
+  .tag-pill:hover{transform:translateY(-2px);border-color:var(--red);}
+  .tag-pill.copied{color:var(--red-dark);border-color:var(--red);}
+  .tags-copyall{display:block;margin:16px auto 0;}
+
+  /* description output */
+  .desc-card{
+    background:var(--paper);border-radius:2px;box-shadow:0 6px 14px var(--paper-shadow);
+    padding:20px 22px;max-width:600px;margin:0 auto;position:relative;
+  }
+  .desc-card::before{
+    content:"";position:absolute;top:-8px;left:24px;width:14px;height:14px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #fff, var(--red) 70%);box-shadow:0 2px 3px rgba(0,0,0,0.35);
+  }
+  .desc-text{
+    font-family:Georgia,serif;font-size:14.5px;line-height:1.7;color:var(--ink);
+    white-space:pre-wrap;margin:0 0 14px;
+  }
+
+  /* thumbnail stickers */
+  .thumb-board{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;padding:6px 4px;}
+  .thumb-sticker{
+    font-family:Arial Black, 'Arial Bold', Helvetica, sans-serif;font-weight:900;
+    font-size:18px;text-transform:uppercase;letter-spacing:0.5px;
+    color:#fff;background:var(--ink);
+    padding:14px 18px;border-radius:4px;
+    box-shadow:0 6px 0 rgba(0,0,0,0.25), 0 8px 14px var(--paper-shadow);
+    cursor:pointer;text-align:center;line-height:1.25;
+    transform:rotate(var(--rot,0deg));
+    transition:transform .12s ease;
+  }
+  .thumb-sticker:nth-child(odd){background:var(--red);}
+  .thumb-sticker:hover{transform:rotate(var(--rot,0deg)) translateY(-3px);}
+  .thumb-sticker.copied{outline:2px solid var(--yellow);}
+
+  .drawer{margin-top:30px;max-width:600px;margin-left:auto;margin-right:auto;}
+  .drawer-toggle{
+    width:100%;display:flex;align-items:center;justify-content:space-between;background:var(--ink);
+    color:var(--paper);border:none;border-radius:6px;padding:12px 16px;
+    font-family:Georgia,serif;font-style:italic;font-weight:700;font-size:14px;cursor:pointer;
+  }
+  .drawer-toggle .arrow{transition:transform .2s ease;font-style:normal;}
+  .drawer-toggle.open .arrow{transform:rotate(180deg);}
+  .drawer-body{background:var(--paper);border-radius:0 0 6px 6px;padding:0 18px;max-height:0;overflow:hidden;transition:max-height .25s ease, padding .25s ease;}
+  .drawer-body.open{max-height:600px;padding:14px 18px 18px;}
+  .drawer-body ol{margin:0;padding-left:18px;}
+  .drawer-body li{font-size:13.5px;line-height:1.6;margin-bottom:8px;color:var(--ink);}
+  .drawer-body b{color:var(--red-dark);}
+</style>
+</head>
+<body>
+<div class="desk">
+
+  <div class="masthead">
+    <h1>The Title Desk</h1>
+    <p>YouTube Shorts creator toolkit</p>
+    <div class="rule"></div>
+  </div>
+
+  <div class="tabbar" id="tabbar">
+    <button class="tab active" data-tab="idea">Idea → titles</button>
+    <button class="tab" data-tab="transcript">Transcript → titles</button>
+    <button class="tab" data-tab="hashtags">Hashtags</button>
+    <button class="tab" data-tab="description">Description</button>
+    <button class="tab" data-tab="thumbnail">Thumbnail text</button>
+  </div>
+
+  <div class="control-card">
+
+    <div class="panel active" data-panel="idea">
+      <div class="field-row">
+        <label class="field-label" for="idea-input">Your video idea</label>
+        <input class="topic-input" id="idea-input" type="text" placeholder="e.g. Gen Z quiz about geography" />
+      </div>
+      <button class="generate-btn" data-mode="idea">Pin 15 titles</button>
+    </div>
+
+    <div class="panel" data-panel="transcript">
+      <div class="field-row">
+        <label class="field-label" for="transcript-link">Video link</label>
+        <div class="link-row">
+          <input class="link-input" id="transcript-link" type="url" placeholder="https://youtube.com/shorts/..." />
+          <button class="fetch-btn" id="fetchLinkBtn" type="button">Fetch transcript</button>
+        </div>
+        <p class="link-status" id="linkStatus" style="display:none;"></p>
+      </div>
+      <p class="divider-or">or</p>
+      <div class="field-row">
+        <label class="field-label" for="transcript-input">Paste your transcript</label>
+        <textarea class="topic-input" id="transcript-input" placeholder="Paste the full transcript or script of your Short here..."></textarea>
+        <p class="field-hint">Pasting is the most reliable option — most Shorts have no public transcript to search for.</p>
+      </div>
+      <button class="generate-btn" data-mode="transcript">Pin 10 titles</button>
+    </div>
+
+    <div class="panel" data-panel="hashtags">
+      <div class="field-row">
+        <label class="field-label" for="hashtags-input">Topic, idea, or paste a transcript</label>
+        <textarea class="topic-input" id="hashtags-input" placeholder="e.g. Gen Z geography quiz, or paste a transcript"></textarea>
+      </div>
+      <button class="generate-btn" data-mode="hashtags">Generate hashtags</button>
+    </div>
+
+    <div class="panel" data-panel="description">
+      <div class="field-row">
+        <label class="field-label" for="description-input">Topic, idea, or paste a transcript</label>
+        <textarea class="topic-input" id="description-input" placeholder="e.g. Gen Z geography quiz, or paste a transcript"></textarea>
+      </div>
+      <button class="generate-btn" data-mode="description">Write description</button>
+    </div>
+
+    <div class="panel" data-panel="thumbnail">
+      <div class="field-row">
+        <label class="field-label" for="thumbnail-input">Topic or idea</label>
+        <input class="topic-input" id="thumbnail-input" type="text" placeholder="e.g. Gen Z quiz about geography" />
+      </div>
+      <button class="generate-btn" data-mode="thumbnail">Pin thumbnail text</button>
+    </div>
+
+    <div class="error-msg" id="errorMsg" style="display:none;"></div>
+  </div>
+
+  <div id="resultsArea">
+    <div class="empty-board">Nothing pinned yet — fill in the field above and generate.</div>
+  </div>
+
+  <div class="drawer">
+    <button class="drawer-toggle" id="drawerToggle">
+      <span>The house style — what makes a Short get clicked</span>
+      <span class="arrow">▾</span>
+    </button>
+    <div class="drawer-body" id="drawerBody">
+      <ol>
+        <li><b>Lead with the gap.</b> A title works when it opens a question the viewer can't leave unanswered.</li>
+        <li><b>Front-load the payoff.</b> The hook needs to land in the first 3-4 words — feeds truncate the rest.</li>
+        <li><b>Numbers and specifics beat vague claims.</b> "7 mistakes" beats "common mistakes" every time.</li>
+        <li><b>Thumbnail text is not the title.</b> Keep it to 2-4 words, it's a visual flag, not a sentence.</li>
+        <li><b>Hashtags should mix broad and niche.</b> A couple of huge tags for reach, a few specific ones for the right audience.</li>
+        <li><b>The description's first line matters most.</b> It shows in search and previews before anyone clicks "more."</li>
+      </ol>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API_URL = "https://api.anthropic.com/v1/messages";
+const MODEL = "claude-sonnet-4-6";
+
+function copySVG(){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="1.5"/><path d="M5 15V5a1.5 1.5 0 0 1 1.5-1.5H15"/></svg>';
+}
+
+function showError(msg){
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function clearError(){
+  document.getElementById('errorMsg').style.display = 'none';
+}
+
+async function callClaude(systemPrompt, userText){
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userText }]
+    })
+  });
+  if(!response.ok){
+    throw new Error("Request failed (" + response.status + ")");
+  }
+  const data = await response.json();
+  const text = (data.content || []).map(b => b.text || "").join("\n");
+  const clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
+  return JSON.parse(clean);
+}
+
+async function callClaudeSearch(systemPrompt, userText){
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userText }],
+      tools: [{ type: "web_search_20250305", name: "web_search" }]
+    })
+  });
+  if(!response.ok){
+    throw new Error("Request failed (" + response.status + ")");
+  }
+  const data = await response.json();
+  const text = (data.content || [])
+    .map(item => (item.type === "text" ? item.text : ""))
+    .filter(Boolean)
+    .join("\n");
+  const clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
+  return JSON.parse(clean);
+}
+
+async function fetchTranscriptFromLink(){
+  clearError();
+  const linkInput = document.getElementById('transcript-link');
+  const url = linkInput.value.trim();
+  const statusEl = document.getElementById('linkStatus');
+  const fetchBtn = document.getElementById('fetchLinkBtn');
+
+  if(!url){
+    showError("Paste a video link first.");
+    return;
+  }
+
+  fetchBtn.disabled = true;
+  const originalLabel = fetchBtn.textContent;
+  fetchBtn.textContent = 'Searching…';
+  statusEl.style.display = 'block';
+  statusEl.textContent = 'Looking for a public transcript…';
+
+  try{
+    const result = await callClaudeSearch(
+      "You are a research assistant helping a creator retrieve the transcript for their own video, for their own YouTube Shorts toolkit. Given a video URL, use web search to try to find the real spoken transcript or caption text for that specific video. Only return transcript text you can verify from search results, never invent or guess dialogue or content. If no verifiable transcript turns up, set found to false, leave transcript empty, and optionally note what you did find instead (like a title or topic). Respond ONLY with a raw JSON object of the exact shape {\"found\": true or false, \"transcript\": \"string\", \"note\": \"string\"}. No markdown, no preamble.",
+      url
+    );
+
+    if(result.found && result.transcript && result.transcript.trim().length > 20){
+      document.getElementById('transcript-input').value = result.transcript.trim();
+      statusEl.textContent = 'Found a transcript — review it below, then pin titles.';
+    }else{
+      statusEl.textContent = result.note
+        ? `Couldn't find a public transcript. ${result.note} Try pasting it manually instead.`
+        : "Couldn't find a public transcript for this link — try pasting it manually instead.";
+    }
+  }catch(err){
+    statusEl.textContent = "Search failed — try pasting the transcript manually instead.";
+  }finally{
+    fetchBtn.disabled = false;
+    fetchBtn.textContent = originalLabel;
+  }
+}
+
+function renderLoading(label){
+  document.getElementById('resultsArea').innerHTML = `<div class="loading-board">${label}</div>`;
+}
+
+function renderEmpty(){
+  document.getElementById('resultsArea').innerHTML = `<div class="empty-board">Nothing pinned yet — fill in the field above and generate.</div>`;
+}
+
+function renderTitleBoard(titles, tagLabel){
+  const board = document.createElement('div');
+  board.className = 'board';
+  titles.forEach((title, i) => {
+    const note = document.createElement('div');
+    note.className = 'note';
+    const rot = (Math.random()*4 - 2).toFixed(1);
+    note.style.setProperty('--rot', rot+'deg');
+    note.style.transform = `rotate(${rot}deg)`;
+    note.style.animationDelay = (i*0.03)+'s';
+    note.innerHTML = `
+      <span class="note-tag">${tagLabel}</span>
+      <p class="note-title">${title}</p>
+      <div class="note-actions">
+        <button class="copy-btn" type="button">${copySVG()} Copy</button>
+      </div>
+    `;
+    note.querySelector('.copy-btn').addEventListener('click', function(){
+      navigator.clipboard.writeText(title).then(() => {
+        this.classList.add('copied');
+        this.innerHTML = `${copySVG()} Copied`;
+        setTimeout(() => { this.classList.remove('copied'); this.innerHTML = `${copySVG()} Copy`; }, 1300);
+      });
+    });
+    board.appendChild(note);
+  });
+  const area = document.getElementById('resultsArea');
+  area.innerHTML = '';
+  area.appendChild(board);
+}
+
+function renderTagBoard(tags){
+  const wrap = document.createElement('div');
+  wrap.className = 'tag-board';
+  tags.forEach(tag => {
+    const pill = document.createElement('span');
+    pill.className = 'tag-pill';
+    pill.textContent = tag.startsWith('#') ? tag : '#' + tag;
+    pill.addEventListener('click', () => {
+      navigator.clipboard.writeText(pill.textContent).then(() => {
+        pill.classList.add('copied');
+        setTimeout(() => pill.classList.remove('copied'), 1000);
+      });
+    });
+    wrap.appendChild(pill);
+  });
+  const copyAll = document.createElement('button');
+  copyAll.className = 'generate-btn tags-copyall';
+  copyAll.textContent = 'Copy all hashtags';
+  copyAll.addEventListener('click', () => {
+    navigator.clipboard.writeText(tags.map(t => t.startsWith('#') ? t : '#'+t).join(' '));
+    copyAll.textContent = 'Copied!';
+    setTimeout(() => copyAll.textContent = 'Copy all hashtags', 1300);
+  });
+  const area = document.getElementById('resultsArea');
+  area.innerHTML = '';
+  area.appendChild(wrap);
+  area.appendChild(copyAll);
+}
+
+function renderDescription(text){
+  const card = document.createElement('div');
+  card.className = 'desc-card';
+  card.innerHTML = `
+    <p class="desc-text"></p>
+    <div class="note-actions">
+      <button class="copy-btn" type="button">${copySVG()} Copy description</button>
+    </div>
+  `;
+  card.querySelector('.desc-text').textContent = text;
+  card.querySelector('.copy-btn').addEventListener('click', function(){
+    navigator.clipboard.writeText(text).then(() => {
+      this.classList.add('copied');
+      this.innerHTML = `${copySVG()} Copied`;
+      setTimeout(() => { this.classList.remove('copied'); this.innerHTML = `${copySVG()} Copy description`; }, 1300);
+    });
+  });
+  const area = document.getElementById('resultsArea');
+  area.innerHTML = '';
+  area.appendChild(card);
+}
+
+function renderThumbBoard(phrases){
+  const wrap = document.createElement('div');
+  wrap.className = 'thumb-board';
+  phrases.forEach(phrase => {
+    const sticker = document.createElement('div');
+    sticker.className = 'thumb-sticker';
+    const rot = (Math.random()*6 - 3).toFixed(1);
+    sticker.style.setProperty('--rot', rot+'deg');
+    sticker.textContent = phrase;
+    sticker.addEventListener('click', () => {
+      navigator.clipboard.writeText(phrase).then(() => {
+        sticker.classList.add('copied');
+        setTimeout(() => sticker.classList.remove('copied'), 1000);
+      });
+    });
+    wrap.appendChild(sticker);
+  });
+  const area = document.getElementById('resultsArea');
+  area.innerHTML = '';
+  area.appendChild(wrap);
+}
+
+const MODES = {
+  idea: {
+    getInput: () => document.getElementById('idea-input').value.trim(),
+    validate: v => v.length > 0,
+    invalidMsg: "Type a video idea first.",
+    loading: "Drafting titles…",
+    system: "You are a YouTube Shorts title strategist. Given a short video idea or topic, generate 15 punchy, highly clickable YouTube Shorts titles under 60 characters each. Mix curiosity, numbers, and bold claims. Respond ONLY with a raw JSON array of strings. No markdown, no preamble, no explanation.",
+    render: data => renderTitleBoard(data, "Title")
+  },
+  transcript: {
+    getInput: () => document.getElementById('transcript-input').value.trim().slice(0, 6000),
+    validate: v => v.length > 20,
+    invalidMsg: "Paste a transcript first (at least a sentence or two).",
+    loading: "Reading the transcript…",
+    system: "You are a YouTube Shorts title strategist. You will be given a transcript of a short video. Identify the single most compelling hook, twist, or payoff in the content, then generate 10 YouTube Shorts titles under 60 characters that accurately reflect that content (no clickbait that misrepresents it). Respond ONLY with a raw JSON array of strings. No markdown, no preamble.",
+    render: data => renderTitleBoard(data, "Title")
+  },
+  hashtags: {
+    getInput: () => document.getElementById('hashtags-input').value.trim().slice(0, 6000),
+    validate: v => v.length > 0,
+    invalidMsg: "Add a topic or transcript first.",
+    loading: "Pulling hashtags…",
+    system: "You are a YouTube Shorts SEO assistant. Given a topic, idea, or transcript, generate 18 relevant hashtags: mix a few broad/high-volume tags with several specific niche tags. No spaces within tags, no # symbol needed. Respond ONLY with a raw JSON array of strings (without the # symbol). No markdown, no preamble.",
+    render: data => renderTagBoard(data)
+  },
+  description: {
+    getInput: () => document.getElementById('description-input').value.trim().slice(0, 6000),
+    validate: v => v.length > 0,
+    invalidMsg: "Add a topic or transcript first.",
+    loading: "Writing the description…",
+    system: "You are a YouTube Shorts copywriter. Given a topic, idea, or transcript, write a complete YouTube description: a strong 1-sentence hook line, then 1-2 short supporting sentences, then a short call to action (like, follow, comment). Keep it under 600 characters total, no hashtags (those are handled separately). Respond ONLY with a raw JSON object of the exact shape {\"description\": \"...\"}. No markdown, no preamble.",
+    render: data => renderDescription(data.description)
+  },
+  thumbnail: {
+    getInput: () => document.getElementById('thumbnail-input').value.trim(),
+    validate: v => v.length > 0,
+    invalidMsg: "Type a video idea first.",
+    loading: "Sketching thumbnail text…",
+    system: "You are a YouTube thumbnail copywriter. Given a video idea or topic, generate 8 extremely short, high-impact thumbnail text options. Each must be 1-4 words MAX, punchy, in natural capitalization (the UI will display them in caps). Respond ONLY with a raw JSON array of strings. No markdown, no preamble.",
+    render: data => renderThumbBoard(data)
+  }
+};
+
+async function runGenerate(modeKey, btn){
+  clearError();
+  const mode = MODES[modeKey];
+  const input = mode.getInput();
+  if(!mode.validate(input)){
+    showError(mode.invalidMsg);
+    return;
+  }
+  btn.disabled = true;
+  const originalLabel = btn.textContent;
+  btn.textContent = 'Working…';
+  renderLoading(mode.loading);
+  try{
+    const data = await callClaude(mode.system, input);
+    mode.render(data);
+  }catch(err){
+    showError("Something went wrong generating that. Try again.");
+    renderEmpty();
+  }finally{
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+  }
+}
+
+document.querySelectorAll('.generate-btn[data-mode]').forEach(btn => {
+  btn.addEventListener('click', () => runGenerate(btn.dataset.mode, btn));
+});
+
+document.getElementById('fetchLinkBtn').addEventListener('click', fetchTranscriptFromLink);
+document.getElementById('transcript-link').addEventListener('keydown', e => {
+  if(e.key === 'Enter'){ e.preventDefault(); fetchTranscriptFromLink(); }
+});
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelector(`.panel[data-panel="${tab.dataset.tab}"]`).classList.add('active');
+    clearError();
+    renderEmpty();
+    const linkStatus = document.getElementById('linkStatus');
+    if(linkStatus){ linkStatus.style.display = 'none'; }
+  });
+});
+
+const toggle = document.getElementById('drawerToggle');
+const drawerBody = document.getElementById('drawerBody');
+toggle.addEventListener('click', () => {
+  toggle.classList.toggle('open');
+  drawerBody.classList.toggle('open');
+});
+</script>
+</body>
+</html>
